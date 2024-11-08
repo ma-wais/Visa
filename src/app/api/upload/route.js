@@ -362,7 +362,7 @@ export async function POST(req) {
     }
     
     const pdfBytes = await pdfDoc.save();
-    const pdfPath = `public/Pdfs/${visaNumber}.pdf`;
+    const pdfPath = `/tmp/${visaNumber}.pdf`;
     fs.writeFileSync(pdfPath, pdfBytes);
 
     const visa = new Visa({
