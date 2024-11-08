@@ -7,7 +7,7 @@ const connectDB = async () => {
   if (mongoose.connections[0].readyState) {
     return;
   }
-  await mongoose.connect("mongodb://127.0.0.1:27017/visa");
+  await mongoose.connect("mongodb+srv://awais:fortnite123@cluster0.qtjbmr8.mongodb.net/visa");
 };
 
 export async function GET(request) {
