@@ -1,0 +1,43 @@
+{
+  "name": "visaauth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
+  },
+  "dependencies": {
+    "@react-pdf/renderer": "^3.4.4",
+    "axios": "^1.7.7",
+    "fontkit": "^2.0.4",
+    "formidable": "^3.5.1",
+    "fs": "^0.0.1-security",
+    "iconv-lite": "^0.6.3",
+    "mongodb": "^6.9.0",
+    "mongoose": "^8.6.2",
+    "multer": "^1.4.5-lts.1",
+    "multiparty": "^4.2.3",
+    "next": "^14.2.11",
+    "next-auth": "^4.24.7",
+    "next-connect": "^1.0.0",
+    "pdf-lib": "^1.17.1",
+    "pdf-parse": "^1.1.1",
+    "pdfkit": "^0.15.0",
+    "pdfkit-next": "^0.11.0",
+    "pspdfkit": "^2024.6.0",
+    "qrcode": "^1.5.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-icons": "^5.3.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.11",
+    "file-loader": "^6.2.0",
+    "postcss": "^8",
+    "raw-loader": "^4.0.2",
+    "tailwindcss": "^3.4.1"
+  }
+}

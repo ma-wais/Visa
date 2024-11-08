@@ -1,0 +1,568 @@
+import { connectToDatabase } from '@/utils/db';
+import Visa from '@/models/visa';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import fs from 'fs';
+import path from 'path';
+import QRCode from 'qrcode';
+
+// export async function POST(req) {
+//   const {
+//     visaNumber,
+//     visaTypeArabic,
+//     visaTypeEnglish,
+//     visaPurposeArabic,
+//     visaPurposeEnglish,
+//     dateOfIssue,
+//     dateOfExpiry,
+//     placeOfIssueArabic,
+//     fullNameArabic,
+//     fullNameEnglish,
+//     moiReference,
+//     nationality,
+//     gender,
+//     occupationArabic,
+//     occupationEnglish,
+//     dob,
+//     passportNo,
+//     passportExpiry,
+//     entryDate,
+//     departureDate,
+//     moreDetails, 
+//   } = await req.json();
+
+//   const { db } = await connectToDatabase();
+
+//   try {
+//     const existingVisa = await Visa.findOne({ visaNumber });
+//     const existingPassport = await Visa.findOne({ passportNo });
+
+//     if (existingVisa) {
+//       return new Response(JSON.stringify({ message: 'Visa Number must be unique' }), { status: 400 });
+//     }
+//     if (existingPassport) {
+//       return new Response(JSON.stringify({ message: 'Passport Number must be unique' }), { status: 400 });
+//     }
+
+//     const pdfDoc = await PDFDocument.create();
+//     const page = pdfDoc.addPage([600, 850]);
+
+//     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+//     const fontSize = 12;
+//     const titleFontSize = 18; 
+
+//     const backgroundPath = path.join(process.cwd(), 'public', 'images', 'background.png');
+//     const backgroundImage = await pdfDoc.embedPng(fs.readFileSync(backgroundPath));
+    
+//     page.drawImage(backgroundImage, {
+//       x: 0,
+//       y: 0,
+//       width: 600,
+//       height: 850,
+//       opacity: 0.1, 
+//     });
+   
+//     const borderWidth = 3;
+//     const borderColor = rgb(0.2, 0.2, 0.2); 
+//     const inset = 20;
+
+//     page.drawRectangle({
+//       x: inset,
+//       y: inset,
+//       width: page.getWidth() - inset * 2,
+//       height: page.getHeight() - inset * 2,
+//       borderWidth: borderWidth,
+//       borderColor: borderColor,
+//     });
+
+//     const qrData = JSON.stringify({ visaNumber, fullNameEnglish, passportNo });
+//     const qrCodeImage = await QRCode.toBuffer(qrData);
+//     const qrCodeImageEmbed = await pdfDoc.embedPng(qrCodeImage);
+//     const qrCodeSize = 70;
+
+//     const flagPath = path.join(process.cwd(), 'public', 'images', 'flag.png');
+//     const flagImage = await pdfDoc.embedPng(fs.readFileSync(flagPath));
+//     const flagWidth = 70; 
+//     const flagHeight = (flagWidth * flagImage.height) / flagImage.width;
+
+//     const middleFlagWidth = 100; 
+//     const middleFlagHeight = (middleFlagWidth * flagImage.height) / flagImage.width; 
+
+//     page.drawImage(flagImage, {
+//       x: (page.getWidth() - middleFlagWidth) / 2 + middleFlagWidth + 10, 
+//       y: page.getHeight() - flagHeight - 20,
+//       width: flagWidth,
+//       height: flagHeight,
+//       opacity: 0.3,
+//     });
+
+//     page.drawImage(flagImage, {
+//       x: (page.getWidth() - middleFlagWidth) / 2, 
+//       y: page.getHeight() - middleFlagHeight - 20,
+//       width: middleFlagWidth,
+//       height: middleFlagHeight,
+//       opacity: 0.3,
+//     });
+
+//     page.drawImage(flagImage, {
+//       x: (page.getWidth() - middleFlagWidth) / 2 - flagWidth - 10, 
+//       y: page.getHeight() - flagHeight - 20,
+//       width: flagWidth,
+//       height: flagHeight,
+//       opacity: 0.3,
+//     });
+
+
+
+// page.drawImage(qrCodeImageEmbed, {
+//   x: page.getWidth() - qrCodeSize - 30, 
+//   y: 30, 
+//   width: qrCodeSize -10,
+//   height: qrCodeSize -10,
+// });
+
+//     page.drawImage(qrCodeImageEmbed, {
+//       x: 30, 
+//       y: page.getHeight() - qrCodeSize - 40,
+//       width: qrCodeSize,
+//       height: qrCodeSize,
+//     });
+//     page.drawImage(flagImage, {
+//         x: page.getWidth() - qrCodeSize - 60,
+//         y: page.getHeight() - qrCodeSize - 70,
+      
+//       width: middleFlagWidth,
+//       height: middleFlagHeight,
+//       opacity: 1, 
+//     });
+//     const electronicVisaText = "Electronic Visa";
+//     const textWidth = helveticaFont.widthOfTextAtSize(electronicVisaText, titleFontSize);
+//     page.drawText(electronicVisaText, {
+//       x: (page.getWidth() - textWidth) / 2, 
+//       y: page.getHeight() - middleFlagHeight - 30,
+//       size: titleFontSize,
+//       font: helveticaFont,
+//       color: rgb(0, 0, 0), 
+//     });
+
+//     const detailsBoxY = page.getHeight() - 150; 
+//     const detailsBoxHeight = 200; 
+//     page.drawRectangle({
+//       x: 40,
+//       y: detailsBoxY - detailsBoxHeight,
+//       width: page.getWidth() - 80,
+//       height: detailsBoxHeight,
+//       color: rgb(1, 1, 1), 
+//       borderColor: rgb(0.68, 0.85, 0.9), 
+//       borderWidth: 1, 
+//       opacity: 0.9,
+//     });
+
+//     page.drawText(`Visa Number: ${visaNumber}`, {
+//       x: 50,
+//       y: detailsBoxY - 30,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+//     page.drawText(`Passport Number: ${passportNo}`, {
+//       x: 350,
+//       y: detailsBoxY - 30,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+
+//     const holderDetailsY = detailsBoxY - 50;
+//     page.drawLine({
+//       start: { x: 40, y: holderDetailsY },
+//       end: { x: page.getWidth() - 40, y: holderDetailsY },
+//       thickness: 1,
+//       color: rgb(0.5, 0.5, 0.5),
+//     });
+
+//     let yPosition = holderDetailsY - 20;
+//     page.drawText(`Full Name (English): ${fullNameEnglish}`, {
+//       x: 50,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+//     page.drawText(`Full Name (Arabic): ${fullNameArabic}`, {
+//       x: 350,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+
+//     yPosition -= 20;
+//     page.drawText(`Nationality: ${nationality}`, {
+//       x: 50,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+//     page.drawText(`Gender: ${gender}`, {
+//       x: 350,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+
+//     yPosition -= 20;
+//     page.drawLine({
+//       start: { x: 40, y: yPosition },
+//       end: { x: page.getWidth() - 40, y: yPosition },
+//       thickness: 1,
+//       color: rgb(0.5, 0.5, 0.5),
+//     });
+
+//     yPosition -= 20;
+//     page.drawText(`Occupation (Arabic): ${occupationArabic}`, {
+//       x: 50,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+//     page.drawText(`Occupation (English): ${occupationEnglish}`, {
+//       x: 350,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+
+//     yPosition -= 20;
+//     page.drawText(`Date of Birth: ${new Date(dob).toLocaleDateString()}`, {
+//       x: 50,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+//     page.drawText(`Passport Expiry: ${new Date(passportExpiry).toLocaleDateString()}`, {
+//       x: 350,
+//       y: yPosition,
+//       size: fontSize,
+//       font: helveticaFont,
+//     });
+
+//     yPosition -= 20;
+//     page.drawLine({
+//       start: { x: 40, y: yPosition },
+//       end: { x: page.getWidth() - 40, y: yPosition },
+//       thickness: 1,
+//       color: rgb(0.5, 0.5, 0.5),
+//     });
+
+//     const additionalDetailsY = yPosition - 20;
+//     page.drawText('Additional Details:', {
+//       x: 50,
+//       y: additionalDetailsY,
+//       size: fontSize + 2, 
+//       font: helveticaFont,
+//       color: rgb(0.2, 0.2, 0.2), 
+//     });
+
+//     if (moreDetails) {
+//       const detailsArray = moreDetails.split('\n');
+//       detailsArray.forEach((detail, index) => {
+//         page.drawText(detail, {
+//           x: 50,
+//           y: additionalDetailsY - (index + 1) * 20, 
+//           size: fontSize,
+//           font: helveticaFont,
+//         });
+//       });
+//     }
+
+//     const pdfBytes = await pdfDoc.save();
+//     const pdfPath = `public/Pdfs/${visaNumber}.pdf`;
+//     fs.writeFileSync(pdfPath, pdfBytes);
+
+//     const visa = new Visa({
+//       visaNumber,
+//       visaTypeArabic,
+//       visaTypeEnglish,
+//       visaPurposeArabic,
+//       visaPurposeEnglish,
+//       dateOfIssue,
+//       dateOfExpiry,
+//       placeOfIssueArabic,
+//       fullNameArabic,
+//       fullNameEnglish,
+//       moiReference,
+//       nationality,
+//       gender,
+//       occupationArabic,
+//       occupationEnglish,
+//       dob,
+//       passportNo,
+//       passportExpiry,
+//       entryDate,
+//       departureDate,
+//       moreDetails,
+//       pdfPath,
+//     });
+//     await visa.save();
+
+//     return new Response(JSON.stringify({ message: 'Visa data saved successfully and PDF generated!', pdfPath }), { status: 200 });
+//   } catch (error) {
+//     console.error('Error occurred while processing the visa:', error);
+//     return new Response(JSON.stringify({ message: 'An error occurred while processing the request.' }), { status: 500 });
+//   }
+// }
+export async function POST(req) {
+  const {
+    visaNumber,
+    visaTypeArabic,
+    visaTypeEnglish,
+    visaPurposeArabic,
+    visaPurposeEnglish,
+    dateOfIssue,
+    dateOfExpiry,
+    placeOfIssueArabic,
+    placeOfIssueEnglish,
+    fullNameArabic,
+    fullNameEnglish,
+    moiReference,
+    nationality,
+    gender,
+    occupationArabic,
+    occupationEnglish,
+    dob,
+    passportNo,
+    passportType,
+    passportExpiry,
+    entryDate,
+    departureDate,
+    employerNameArabic,
+    employerNameEnglish,
+    employerMoiReference,
+    mobileNumber
+  } = await req.json();
+
+  const { db } = await connectToDatabase();
+
+  try {
+    const existingVisa = await Visa.findOne({ visaNumber });
+    const existingPassport = await Visa.findOne({ passportNo });
+
+    if (existingVisa || existingPassport) {
+      return new Response(
+        JSON.stringify({ 
+          message: existingVisa ? 'Visa Number must be unique' : 'Passport Number must be unique' 
+        }), 
+        { status: 400 }
+      );
+    }
+
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([595, 842]); // A4 size
+
+    const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    
+    // Load and embed images
+    const backgroundPath = path.join(process.cwd(), 'public', 'images', 'background.png');
+    const headerBgPath = path.join(process.cwd(), 'public', 'images', 'flag.png');
+    const logoPath = path.join(process.cwd(), 'public', 'images', 'icon.png');
+    
+    const backgroundImage = await pdfDoc.embedPng(fs.readFileSync(backgroundPath));
+    const headerBgImage = await pdfDoc.embedPng(fs.readFileSync(headerBgPath));
+    const logoImage = await pdfDoc.embedPng(fs.readFileSync(logoPath));
+
+    // Draw background
+    page.drawImage(backgroundImage, {
+      x: 0,
+      y: 0,
+      width: page.getWidth(),
+      height: page.getHeight(),
+      opacity: 0.1
+    });
+
+    // Draw header background
+    page.drawImage(headerBgImage, {
+      x: 0,
+      y: page.getHeight() - 100,
+      width: page.getWidth(),
+      height: 100,
+    });
+
+    // Draw logo
+    page.drawImage(pdfDoc, logoImage, {
+      x: page.getWidth() - 100,
+      y: page.getHeight() - 90,
+      width: 80,
+      height: 80,
+    });
+
+    // Header text
+    drawBilingualText(pdfDoc, page, 'تأشيرة إلكترونية', 'ELECTRONIC VISA', page.getWidth() / 2, page.getHeight() - 60);
+    drawBilingualText(pdfDoc, page, 'دولة الكويت', 'State of Kuwait', page.getWidth() - 120, page.getHeight() - 30);
+
+    // Draw sections
+    const startY = page.getHeight() - 150;
+    let currentY = startY;
+
+    // Visa Details Section
+    currentY = drawSection(pdfDoc, page, 'بيانات التأشيرة', 'Visa Details', currentY, [
+      { arabic: 'رقم التأشيرة', english: 'Visa Number', value: visaNumber },
+      { arabic: 'نوع التأشيرة', english: 'Visa Type', value: `${visaTypeEnglish} / ${visaTypeArabic}` },
+      { arabic: 'الغرض', english: 'Visa Purpose', value: `${visaPurposeEnglish} / ${visaPurposeArabic}` },
+      { arabic: 'تاريخ الإصدار', english: 'Date of Issue', value: formatDate(dateOfIssue) },
+      { arabic: 'تاريخ الانتهاء', english: 'Date Of Expiry', value: formatDate(dateOfExpiry) },
+      { arabic: 'مكان الإصدار', english: 'Place of Issue', value: `${placeOfIssueEnglish} / ${placeOfIssueArabic}` }
+    ]);
+
+    // Visa Holder Details Section
+    currentY = drawSection(pdfDoc, page, 'بيانات صاحب التأشيرة', 'Visa Holder Details', currentY - 20, [
+      { arabic: 'الاسم الكامل', english: 'Full Name', value: `${fullNameEnglish} / ${fullNameArabic}` },
+      { arabic: 'مرجع وزارة الداخلية', english: 'MOI Reference', value: moiReference },
+      { arabic: 'الجنسية', english: 'Nationality', value: nationality },
+      { arabic: 'الجنس', english: 'Gender', value: gender },
+      { arabic: 'المهنة', english: 'Occupation', value: `${occupationEnglish} / ${occupationArabic}` },
+      { arabic: 'تاريخ الميلاد', english: 'Date Of Birth', value: formatDate(dob) },
+      { arabic: 'رقم جواز السفر', english: 'Passport No.', value: passportNo },
+      { arabic: 'نوع الجواز', english: 'Passport Type', value: passportType },
+      { arabic: 'تاريخ انتهاء الجواز', english: 'Expiry Date', value: formatDate(passportExpiry) }
+    ]);
+
+    // Employer/Family Details Section
+    currentY = drawSection(pdfDoc, page, 'بيانات صاحب العمل/العائل', 'Employer/Family Details', currentY - 20, [
+      { arabic: 'الاسم الكامل', english: 'Full Name', value: `${employerNameEnglish} / ${employerNameArabic}` },
+      { arabic: 'مرجع وزارة الداخلية', english: 'MOI Reference', value: employerMoiReference },
+      { arabic: 'رقم الهاتف', english: 'Mobile Number', value: mobileNumber }
+    ]);
+
+    // Generate QR codes
+    const qrData = JSON.stringify({ visaNumber, fullNameEnglish, passportNo });
+    const qrCodeImage = await QRCode.toBuffer(qrData);
+    const qrCodeImageEmbed = await pdfDoc.embedPng(qrCodeImage);
+
+    page.drawImage(qrCodeImageEmbed, {
+      x: 30,
+      y: 30,
+      width: 80,
+      height: 80
+    });
+
+    page.drawImage(qrCodeImageEmbed, {
+      x: page.getWidth() - 110,
+      y: 30,
+      width: 80,
+      height: 80
+    });
+
+    drawFooter(pdfDoc, page, currentY - 100);
+
+    const pdfBytes = await pdfDoc.save();
+    const pdfPath = `public/Pdfs/${visaNumber}.pdf`;
+    fs.writeFileSync(pdfPath, pdfBytes);
+
+    const visa = new Visa({
+      visaNumber,
+      visaTypeArabic,
+      visaTypeEnglish,
+      visaPurposeArabic,
+      visaPurposeEnglish,
+      dateOfIssue,
+      dateOfExpiry,
+      placeOfIssueArabic,
+      fullNameArabic,
+      fullNameEnglish,
+      moiReference,
+      nationality,
+      gender,
+      occupationArabic,
+      occupationEnglish,
+      dob,
+      passportNo,
+      passportExpiry,
+      entryDate,
+      departureDate,
+      moreDetails,
+      pdfPath,
+    });
+    await visa.save();
+
+    return new Response(
+      JSON.stringify({ 
+        message: 'Visa data saved successfully and PDF generated!',
+        pdfPath 
+      }), 
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error:', error);
+    return new Response(
+      JSON.stringify({ message: 'An error occurred while processing the request.' }), 
+      { status: 500 }
+    );
+  }
+}
+
+// Helper functions
+async function drawBilingualText(pdfDoc, page, arabic, english, x, y) {
+  const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontSize = 12;
+  
+  page.drawText(arabic, {
+    x: x - (helveticaFont.widthOfTextAtSize(arabic, fontSize) / 2),
+    y: y + 14,
+    size: fontSize,
+    font: helveticaFont
+  });
+  
+  page.drawText(english, {
+    x: x - (helveticaFont.widthOfTextAtSize(english, fontSize) / 2),
+    y: y,
+    size: fontSize,
+    font: helveticaFont
+  });
+}
+
+async function drawSection(pdfDoc, page, titleArabic, titleEnglish, startY, fields) {
+  const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  
+  // Draw section title
+  await drawBilingualText(pdfDoc, page, titleArabic, titleEnglish, 50, startY);
+  
+  let currentY = startY - 30;
+  
+  // Draw fields
+  for (const field of fields) {
+    // Field label
+    await drawBilingualText(pdfDoc, page, field.arabic, field.english, 50, currentY);
+    
+    // Field value
+    page.drawText(field.value, {
+      x: 200,
+      y: currentY,
+      size: 10,
+      font: helveticaFont
+    });
+    
+    currentY -= 20;
+  }
+  
+  return currentY;
+}
+
+async function drawFooter(pdfDoc, page, y) {
+  const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  
+  page.drawText('ختم الدخول', {
+    x: 50,
+    y: y,
+    size: 12,
+    font: helveticaFont
+  });
+  
+  page.drawText('ختم الخروج', {
+    x: page.getWidth() - 150,
+    y: y,
+    size: 12,
+    font: helveticaFont
+  });
+}
+
+function formatDate(date) {
+  return new Date(date).toLocaleDateString('en-GB');
+}
