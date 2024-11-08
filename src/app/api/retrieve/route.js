@@ -47,18 +47,20 @@ export async function GET(request) {
         headers: { 'Content-Type': 'application/json' },
       });
     }
-
+    console.log('PDF path:', pdfPath);
     const absolutePdfPath = path.join(process.cwd(), pdfPath);
 
+    console.log('Absolute PDF path:', absolutePdfPath);
     if (!fs.existsSync(absolutePdfPath)) {
       return new Response(JSON.stringify({ error: 'PDF file not found on the server' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       });
     }
-
+    console.log('PDF file found on the server');
     const fileStream = fs.createReadStream(absolutePdfPath);
 
+    console.log('Sending PDF file');
     return new Response(fileStream, {
       status: 200,
       headers: {
